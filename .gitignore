@@ -1,0 +1,12 @@
+.DS_Store
+.esphome/
+.venv/
+.pioenvs/
+.piolibdeps/
+__pycache__/
+*.py[cod]
+*.log
+*.ndjson
+secrets.yaml
+**/secrets.yaml
+mock/data/

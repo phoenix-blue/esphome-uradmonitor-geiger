@@ -1,0 +1,259 @@
+# uRADMonitor direct uploader for ESPHome.
+# Modes are separate so a mock Device ID can never be reused in production.
+# Production is OFF by default and must be deliberately selected.
+
+globals:
+  - id: urad_test_device_id
+    type: std::string
+    restore_value: true
+    max_restore_data_length: 8
+    initial_value: '""'
+
+  - id: urad_prod_device_id
+    type: std::string
+    restore_value: true
+    max_restore_data_length: 8
+    initial_value: '""'
+
+  - id: urad_upload_ok
+    type: uint32_t
+    restore_value: false
+    initial_value: '0'
+
+  - id: urad_upload_failed
+    type: uint32_t
+    restore_value: false
+    initial_value: '0'
+
+select:
+  - platform: template
+    id: urad_mode
+    name: "uRAD Upload Mode"
+    optimistic: true
+    restore_value: true
+    initial_option: "Off"
+    options:
+      - "Off"
+      - "Test"
+      - "Production"
+
+text_sensor:
+  - platform: template
+    id: urad_active_device_id
+    name: "uRAD Active Device ID"
+    update_interval: 15s
+    lambda: |-
+      auto mode = id(urad_mode).current_option();
+      if (mode == "Test") {
+        return id(urad_test_device_id).empty() ? std::string("unassigned") : id(urad_test_device_id);
+      }
+      if (mode == "Production") {
+        return id(urad_prod_device_id).empty() ? std::string("unassigned") : id(urad_prod_device_id);
+      }
+      return std::string("off");
+
+  - platform: template
+    id: urad_last_result
+    name: "uRAD Last Result"
+    update_interval: never
+
+  - platform: template
+    id: urad_last_response
+    name: "uRAD Last Response"
+    update_interval: never
+
+sensor:
+  - platform: template
+    name: "uRAD Successful Uploads"
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: return id(urad_upload_ok);
+
+  - platform: template
+    name: "uRAD Failed Uploads"
+    accuracy_decimals: 0
+    update_interval: 30s
+    lambda: return id(urad_upload_failed);
+
+button:
+  - platform: template
+    name: "uRAD Upload Now"
+    on_press:
+      - script.execute: urad_upload
+
+  - platform: template
+    name: "uRAD Clear Test Device ID"
+    on_press:
+      - lambda: |-
+          id(urad_test_device_id).clear();
+          id(urad_last_result).publish_state("Test Device ID cleared");
+
+# No manual registration or production-ID reset button is exposed.
+# Registration is automatic only when the selected mode has no stored ID.
+
+script:
+  - id: urad_cycle
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(urad_mode).current_option() == "Test" ||
+                     (id(urad_mode).current_option() == "Production" &&
+                      id(sntp_time).utcnow().is_valid() && !std::isnan(id(geiger_cpm).state));
+          then:
+            - if:
+                condition:
+                  lambda: |-
+                    if (id(urad_mode).current_option() == "Test") return id(urad_test_device_id).empty();
+                    return id(urad_prod_device_id).empty();
+                then:
+                  - script.execute: urad_register
+                else:
+                  - script.execute: urad_upload
+
+  - id: urad_register
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: |-
+              // Never replace an existing ID by requesting another registration.
+              const auto mode = id(urad_mode).current_option();
+              if (mode == "Test") return id(urad_test_device_id).empty();
+              return mode == "Production" && id(urad_prod_device_id).empty() &&
+                     id(sntp_time).utcnow().is_valid() && !std::isnan(id(geiger_cpm).state);
+          then:
+            - logger.log:
+                level: INFO
+                format: "uRAD registration attempt, mode=%s"
+                args: [ 'id(urad_mode).current_option().c_str()' ]
+            - http_request.post:
+                url: !lambda |-
+                  if (id(urad_mode).current_option() == "Test") return std::string("${urad_mock_url}");
+                  auto now = id(sntp_time).utcnow();
+                  char path[64];
+                  snprintf(path, sizeof(path), "01/%lu/0B/%.0f", static_cast<unsigned long>(now.timestamp), id(geiger_cpm).state);
+                  return std::string("${urad_upload_url}") + path;
+                request_headers:
+                  X-User-id: !lambda |-
+                    if (id(urad_mode).current_option() == "Test") return "test";
+                    return "${urad_user_id}";
+                  X-User-hash: !lambda |-
+                    if (id(urad_mode).current_option() == "Test") return "test";
+                    return "${urad_user_hash}";
+                  X-Device-id: "13000000"
+                body: ""
+                capture_response: true
+                max_response_buffer_size: 256
+                on_response:
+                  then:
+                    - lambda: |-
+                        id(urad_last_response).publish_state(body.substr(0, 200));
+                        if (response->status_code < 200 || response->status_code >= 300) {
+                          id(urad_upload_failed)++;
+                          id(urad_last_result).publish_state("Registration HTTP error " + std::to_string(response->status_code));
+                          ESP_LOGW("urad", "Registration failed HTTP %d, body=%s", response->status_code, body.c_str());
+                          return;
+                        }
+
+                        // Robustly extract an 8 character hexadecimal setid.
+                        // This intentionally does not depend on strict JSON because
+                        // uRADMonitor documentation shows setid both quoted and unquoted.
+                        auto key = body.find("setid");
+                        auto colon = key == std::string::npos ? std::string::npos : body.find(':', key);
+                        std::string new_id;
+                        if (colon != std::string::npos) {
+                          size_t i = colon + 1;
+                          while (i < body.size() && (body[i] == ' ' || body[i] == '\t' || body[i] == '\"')) i++;
+                          while (i < body.size() && new_id.size() < 8 && isxdigit(static_cast<unsigned char>(body[i]))) {
+                            new_id.push_back(toupper(static_cast<unsigned char>(body[i])));
+                            i++;
+                          }
+                        }
+
+                        if (new_id.size() == 8 && new_id.rfind("13", 0) == 0) {
+                          if (id(urad_mode).current_option() == "Test") id(urad_test_device_id) = new_id;
+                          else id(urad_prod_device_id) = new_id;
+                          id(urad_upload_ok)++;
+                          id(urad_last_result).publish_state("Registered Device ID " + new_id);
+                          ESP_LOGI("urad", "Registered Device ID %s", new_id.c_str());
+                        } else {
+                          id(urad_upload_failed)++;
+                          id(urad_last_result).publish_state("Registration response had no valid setid");
+                          ESP_LOGW("urad", "No valid setid in response: %s", body.c_str());
+                        }
+                on_error:
+                  then:
+                    - lambda: |-
+                        id(urad_upload_failed)++;
+                        id(urad_last_result).publish_state("Registration transport error");
+                        ESP_LOGW("urad", "Registration transport error");
+
+  - id: urad_upload
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: |-
+              if (id(urad_mode).current_option() == "Off") return false;
+              if (!id(sntp_time).utcnow().is_valid()) return false;
+              if (std::isnan(id(geiger_cpm).state)) return false;
+              if (id(urad_mode).current_option() == "Test") return !id(urad_test_device_id).empty();
+              return !id(urad_prod_device_id).empty();
+          then:
+            - http_request.post:
+                url: !lambda |-
+                  if (id(urad_mode).current_option() == "Test") return std::string("${urad_mock_url}");
+                  auto now = id(sntp_time).utcnow();
+                  char path[64];
+                  snprintf(path, sizeof(path), "01/%lu/0B/%.0f", static_cast<unsigned long>(now.timestamp), id(geiger_cpm).state);
+                  return std::string("${urad_upload_url}") + path;
+                request_headers:
+                  X-User-id: !lambda |-
+                    if (id(urad_mode).current_option() == "Test") return "test";
+                    return "${urad_user_id}";
+                  X-User-hash: !lambda |-
+                    if (id(urad_mode).current_option() == "Test") return "test";
+                    return "${urad_user_hash}";
+                  X-Device-id: !lambda |-
+                    if (id(urad_mode).current_option() == "Test") return id(urad_test_device_id).c_str();
+                    return id(urad_prod_device_id).c_str();
+                  Content-Type: application/x-www-form-urlencoded
+                body: !lambda |-
+                  if (id(urad_mode).current_option() == "Production") return std::string("");
+                  auto now = id(sntp_time).utcnow();
+                  char payload[64];
+                  snprintf(payload, sizeof(payload), "01/%lu/0B/%.0f",
+                           static_cast<unsigned long>(now.timestamp), id(geiger_cpm).state);
+                  return std::string(payload);
+                capture_response: true
+                max_response_buffer_size: 256
+                on_response:
+                  then:
+                    - lambda: |-
+                        id(urad_last_response).publish_state(body.substr(0, 200));
+                        if (response->status_code >= 200 && response->status_code < 300 && body.find("\"success\"") != std::string::npos && body.find("\"ok\"") != std::string::npos) {
+                          id(urad_upload_ok)++;
+                          id(urad_last_result).publish_state("Upload OK, HTTP " + std::to_string(response->status_code));
+                          ESP_LOGI("urad", "Upload OK HTTP %d, CPM %.0f", response->status_code, id(geiger_cpm).state);
+                        } else {
+                          id(urad_upload_failed)++;
+                          id(urad_last_result).publish_state("Upload HTTP error " + std::to_string(response->status_code));
+                          ESP_LOGW("urad", "Upload failed HTTP %d, body=%s", response->status_code, body.c_str());
+                        }
+                on_error:
+                  then:
+                    - lambda: |-
+                        id(urad_upload_failed)++;
+                        id(urad_last_result).publish_state("Upload transport error");
+                        ESP_LOGW("urad", "Upload transport error");
+          else:
+            - logger.log:
+                level: WARN
+                format: "uRAD upload skipped. Check mode, time, CPM and Device ID"
+
+interval:
+  - interval: ${upload_interval}
+    then:
+      - script.execute: urad_cycle

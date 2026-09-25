@@ -1,0 +1,57 @@
+# RadiationD v1.1 CAJOE pulse counter.
+# The board's connector marked VIN is the pulse output.
+# The pulse is active low, therefore falling edges are counted.
+
+sensor:
+  - platform: pulse_counter
+    id: geiger_cpm
+    name: "Radiation CPM"
+    pin:
+      number: ${geiger_pin}
+      mode:
+        input: true
+    count_mode:
+      rising_edge: DISABLE
+      falling_edge: INCREMENT
+    internal_filter: 13us
+    update_interval: 60s
+    unit_of_measurement: "CPM"
+    accuracy_decimals: 0
+    icon: mdi:radioactive
+    total:
+      id: geiger_total_pulses
+      name: "Radiation Total Pulses"
+      unit_of_measurement: "pulses"
+      accuracy_decimals: 0
+
+  - platform: copy
+    source_id: geiger_cpm
+    id: geiger_cpm_5m
+    name: "Radiation CPM 5 Minute Average"
+    unit_of_measurement: "CPM"
+    accuracy_decimals: 1
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+
+  - platform: debug
+    free:
+      name: "Heap Free"
+    block:
+      name: "Heap Largest Block"
+    fragmentation:
+      name: "Heap Fragmentation"
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Reset Reason"

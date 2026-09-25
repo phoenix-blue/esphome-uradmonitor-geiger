@@ -1,0 +1,74 @@
+substitutions:
+  device_name: geiger-node
+  friendly_name: Geiger Node
+  geiger_pin: GPIO5
+  upload_interval: 60s
+  urad_upload_url: https://data.uradmonitor.com/api/v1/upload/exp/
+  urad_mock_url: !secret urad_mock_url
+  urad_user_id: !secret urad_user_id
+  urad_user_hash: !secret urad_user_hash
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.9.0
+
+esp8266:
+  board: nodemcuv2
+  restore_from_flash: true
+
+packages:
+  geiger_core: !include packages/geiger_core.yaml
+  urad_upload: !include packages/urad_upload.yaml
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+  fast_connect: true
+  reboot_timeout: 15min
+  ap:
+    ssid: "${friendly_name} Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+web_server:
+  port: 80
+  version: 2
+  include_internal: false
+  log: true
+  auth:
+    username: !secret web_username
+    password: !secret web_password
+    type: digest
+
+http_request:
+  id: urad_http
+  timeout: 7s
+  follow_redirects: false
+  verify_ssl: false
+  tls_buffer_size_rx: 16384
+  tls_buffer_size_tx: 512
+
+# SNTP is used for EXP field 01, which is mandatory for uRADMonitor.
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: UTC
+
+# Debug entities are deliberately enabled during the stability test.
+debug:
+  update_interval: 30s
