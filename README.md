@@ -20,6 +20,7 @@ uRADMonitor or ESPHome.
 - Exposes upload results, counters, active Device ID, uptime, Wi-Fi signal,
   free heap, largest heap block, fragmentation, and reset reason.
 - Includes a dependency-free Python mock server and a Docker Compose setup.
+- Includes a compact snap-fit enclosure as final, print-ready STL files.
 
 The implementation uses normal ESPHome YAML packages and lambdas. No custom
 C++ component or external ESPHome library is required.
@@ -42,6 +43,26 @@ which reduces 5 V to approximately 3 V.
 Do not connect two independent 5 V supplies to the NodeMCU at the same time
 unless the power arrangement explicitly prevents back-feeding.
 
+## Printable enclosure
+
+A compact enclosure is included for this measured hardware combination. It
+keeps the Geiger board and ESP8266 inline, preserves access to the Geiger
+board's barrel-power input, and closes with a snap-fit lid.
+
+Only the final print-ready STL files are published. Editable STEP files and
+slicer-specific 3MF files are intentionally not included.
+
+> The PCB models in the CAD images are simplified dimensional models for
+> enclosure documentation, not manufacturing-accurate replicas.
+
+![Reference hardware layout](docs/images/hardware-layout.png)
+
+| Closed enclosure | Open enclosure |
+| --- | --- |
+| ![Closed enclosure render](docs/images/enclosure-closed.png) | ![Open enclosure with simplified PCB models](docs/images/enclosure-open.png) |
+| Exploded view | Lid raised |
+| ![Exploded enclosure render](docs/images/enclosure-exploded.png) | ![Enclosure with the lid raised](docs/images/enclosure-lid-raised.png) |
+
 ## Repository layout
 
 | Path | Purpose |
@@ -52,6 +73,8 @@ unless the power arrangement explicitly prevents back-feeding.
 | `secrets.example.yaml` | Safe template for local credentials |
 | `mock/urad_mock.py` | Local uRADMonitor-compatible test endpoint |
 | `mock/compose.yaml` | Optional Docker Compose deployment |
+| `hardware/enclosure/` | Final base and lid STL files |
+| `docs/images/` | Reference photo and enclosure renders |
 
 ## Installation
 
@@ -174,6 +197,11 @@ stores the returned `setid`. Uploads then send:
 - `01`: current Unix timestamp
 - `0B`: current CPM
 
+This proof of concept deliberately sends only these two fields. The
+uRADMonitor dashboard currently exposes additional channels for the registered
+device even though no values for those fields are uploaded; this is under
+investigation.
+
 Refer to the official
 [uRADMonitor open-data upload tutorial](https://www.uradmonitor.com/open-data-upload-tutorial/)
 for account setup, headers, registration, and field definitions.
@@ -214,7 +242,10 @@ for the current platform limitations and TLS buffer guidance.
 A DS18B20 temperature probe can be added through ESPHome's OneWire components.
 Supply voltage can also be measured with the ESP8266 ADC, but only through a
 properly calculated divider that keeps the board's A0 input within its allowed
-range. Validate memory stability before adding either feature.
+range. Other spare environmental sensors may be added later, but each channel
+should be validated locally and against the uRADMonitor field definitions
+before production upload is enabled. Validate memory stability before adding
+these features.
 
 ## License
 

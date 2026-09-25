@@ -11,4 +11,6 @@ __pycache__/
 secrets.yaml
 **/secrets.yaml
 mock/data/
-hardware/enclosure/
+hardware/enclosure/*.3mf
+hardware/enclosure/*.step
+hardware/enclosure/*.stp
