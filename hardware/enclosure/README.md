@@ -63,9 +63,9 @@ Open `geiger_enclosure_lid_multicolor.3mf` in a multi-material slicer. Assign
 the `Lid body` object to the main colour and `Black logo inlay` to black. In
 Bambu Studio these two filament colours are already stored as white and black.
 Keep the supplied orientation: the visible face is on the print bed, so the
-logo is printed flush with the outside face. A single-nozzle printer can
-produce the same result by configuring the slicer's object-based filament
-changes.
+logo starts in the first layer and is printed flush with the outside face. A
+single-nozzle printer can produce the same result by configuring the slicer's
+object-based filament changes.
 
 Both 3MF files are Bambu-native project archives and were reopened with Bambu
 Studio 2.8.2.61. Each contains one printable plate; the lid contains two mesh
