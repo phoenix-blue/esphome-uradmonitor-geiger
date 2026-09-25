@@ -52,6 +52,7 @@ unless the power arrangement explicitly prevents back-feeding.
 | `secrets.example.yaml` | Safe template for local credentials |
 | `mock/urad_mock.py` | Local uRADMonitor-compatible test endpoint |
 | `mock/compose.yaml` | Optional Docker Compose deployment |
+| `hardware/enclosure/` | Parametric enclosure source plus printable STEP/STL files |
 
 ## Installation
 
@@ -215,6 +216,22 @@ A DS18B20 temperature probe can be added through ESPHome's OneWire components.
 Supply voltage can also be measured with the ESP8266 ADC, but only through a
 properly calculated divider that keeps the board's A0 input within its allowed
 range. Validate memory stability before adding either feature.
+
+## Printable enclosure
+
+`hardware/enclosure/` contains a photo-derived, parametric enclosure for the
+CAJOE RadiationD v1.1 board and a NodeMCU V3. The temporary acrylic plate and
+brass standoffs shown in the build photos are not used: both boards mount to
+integrated printed supports. The Geiger board's barrel-power connector remains
+accessible; the NodeMCU is powered internally from the board's regulated 5 V
+supply, so the enclosure intentionally has no external USB opening.
+
+Ready-to-slice STL and Bambu-compatible 3MF files, STEP source solids, a closed
+fit-check assembly, and an exploded review assembly are included. Verify the
+PCB and mounting-hole dimensions listed in
+[`hardware/enclosure/README.md`](hardware/enclosure/README.md) before starting
+a full print; the first model is intentionally easy to adjust after a short
+physical fit test.
 
 ## License
 
