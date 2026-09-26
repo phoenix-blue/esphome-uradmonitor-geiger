@@ -4,11 +4,9 @@ This directory contains the current compact v7 print files:
 
 - `cajoe_geiger_esp_v7_base.stl`
 - `cajoe_geiger_esp_v7_lid.stl`
-- `cajoe_geiger_esp_v7_lid_2color_bambu.3mf`
 
-The STL lid is a single-colour model. The optional Bambu Studio 3MF contains
-separate dark-blue lid and black logo/text parts. Editable STEP source files
-are intentionally not published.
+The lid is currently supplied as a single-colour STL model. Editable STEP
+source files are intentionally not published.
 
 ## Reference geometry
 
@@ -30,8 +28,6 @@ keep the enclosure compact. The lid uses a snap fit.
 - Print the lid with its outside face on the build plate when your printer can
   reproduce the raised lettering cleanly; otherwise rotate it to suit your
   preferred finish and support strategy.
-- In Bambu Studio, assign dark blue to the lid part and black to the separate
-  logo/text part in the supplied 3MF.
 - A 0.20 mm layer height and at least three walls are sensible starting points.
 - PLA and PETG are both suitable for an indoor enclosure.
 - Test the snap fit and barrel-connector clearance before final assembly.
