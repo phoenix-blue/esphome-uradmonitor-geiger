@@ -8,6 +8,8 @@ uRADMonitor without requiring Home Assistant or MQTT for the upload path.
 This is an independent community project and is not affiliated with
 uRADMonitor or ESPHome.
 
+Dutch project page: [Help het stralingsmeetnetwerk uitbreiden](https://phoenix-blue.github.io/esphome-uradmonitor-geiger/)
+
 ## Features
 
 - Counts active-low Geiger pulses on `D1` / `GPIO5`.

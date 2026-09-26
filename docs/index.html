@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071923">
+  <meta name="description" content="Help het openbare uRADMonitor-meetnetwerk uitbreiden met een zelfgebouwde of kant-en-klare stralingsmeter.">
+  <meta property="og:title" content="Help het stralingsmeetnetwerk uitbreiden">
+  <meta property="og:description" content="Bouw zelf een ESPHome Geigerteller of kies een kant-en-klaar uRADMonitor-meetstation.">
+  <meta property="og:type" content="website">
+  <title>Help het stralingsmeetnetwerk uitbreiden</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Naar de inhoud</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Naar boven">
+      <span class="brand-mark" aria-hidden="true">☢</span>
+      <span>Stralingsmeetnetwerk</span>
+    </a>
+    <a class="header-link" href="https://www.uradmonitor.com/" rel="noopener">uRADMonitor ↗</a>
+  </header>
+
+  <main id="inhoud">
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow">Samen meten in Nederland en België</p>
+        <h1>Help het meetnetwerk uitbreiden.</h1>
+        <p class="intro">Meer meetpunten geven een beter actueel beeld van de natuurlijke achtergrondstraling. Kies een zelfbouwproject of een compleet meetstation en deel je metingen met het openbare uRADMonitor-netwerk.</p>
+        <div class="actions">
+          <a class="button primary" href="#zelf-bouwen">Zelf bouwen</a>
+          <a class="button secondary" href="#kant-en-klaar">Kant-en-klaar</a>
+        </div>
+      </div>
+      <div class="monitor" aria-label="Illustratie van een stralingsmeting">
+        <div class="monitor-ring"><span>☢</span></div>
+        <p>Actuele achtergrondstraling</p>
+        <strong>0,082 <small>µSv/h</small></strong>
+        <div class="level"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <span class="status"><b></b> Voorbeeld · normaal niveau</span>
+      </div>
+    </section>
+
+    <section class="explanation" aria-labelledby="waarom">
+      <p class="section-number">01</p>
+      <div>
+        <h2 id="waarom">Waarom een extra meetpunt?</h2>
+        <p>Een meetstation registreert lokaal het aantal pulsen van een Geigerteller. Die actuele waarde kan zichtbaar worden in Home Assistant, op een Toon-scherm en — als je daarvoor kiest — in het wereldwijde openbare netwerk.</p>
+      </div>
+      <ul class="facts" aria-label="Belangrijkste eigenschappen">
+        <li><strong>Actueel</strong><span>Momentopname uit publieke sensoren</span></li>
+        <li><strong>Open</strong><span>Inzichtelijk via uRADMonitor</span></li>
+        <li><strong>Privacybewust</strong><span>Geen personen of adressen nodig</span></li>
+      </ul>
+    </section>
+
+    <section class="choices" aria-label="Kies een route">
+      <article class="choice" id="zelf-bouwen">
+        <span class="choice-tag">Voor makers</span>
+        <h2>Zelf bouwen met ESPHome</h2>
+        <p>Gebruik een NodeMCU/ESP8266 en een compatibele Geigerteller. Het open-source project telt de pulsen, maakt de meting beschikbaar in Home Assistant en kan de CPM-waarde naar uRADMonitor sturen.</p>
+        <ol>
+          <li>Bekijk de officiële bouwuitleg.</li>
+          <li>Download de configuratie vanaf GitHub.</li>
+          <li>Test lokaal vóór je openbaar publiceert.</li>
+        </ol>
+        <div class="card-actions">
+          <a class="button primary" href="https://github.com/phoenix-blue/esphome-uradmonitor-geiger" rel="noopener">Open het GitHub-project ↗</a>
+          <a class="text-link" href="https://www.uradmonitor.com/esphome-geiger-counter-bridge-for-home-assistant-and-uradmonitor/" rel="noopener">Lees de officiële DIY-uitleg ↗</a>
+        </div>
+      </article>
+
+      <article class="choice ready" id="kant-en-klaar">
+        <span class="choice-tag">Direct beginnen</span>
+        <h2>Kant-en-klaar meetstation</h2>
+        <p>Wil je meten zonder zelf elektronica samen te stellen? Bekijk dan de complete uRADMonitor-sensoren. Kies een model dat straling meet en volg de installatie-instructies van de fabrikant.</p>
+        <div class="signal" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <a class="button secondary light" href="https://www.uradmonitor.com/products/" rel="noopener">Bekijk de meetstations ↗</a>
+      </article>
+    </section>
+
+    <section class="toon" aria-labelledby="toon-title">
+      <div>
+        <p class="eyebrow">Ook zichtbaar op Toon</p>
+        <h2 id="toon-title">Een rustig beeld van de meting in jouw provincie.</h2>
+      </div>
+      <p>De community-app Stralingsmonitor toont actuele openbare meetpunten uit Nederland en België. Een tussenserver vraagt de bron maximaal één keer per uur op en bewaart geen historische meetwaarden.</p>
+    </section>
+
+    <section class="transparency" aria-labelledby="transparantie">
+      <h2 id="transparantie">Transparantie en privacy</h2>
+      <div class="transparency-grid">
+        <p><strong>Meetgegevens</strong> Alleen de actuele momentopname wordt tijdelijk gecachet. Er wordt geen historisch stralingsarchief opgebouwd.</p>
+        <p><strong>Gebruiksstatistiek</strong> Alleen geaggregeerde aantallen per UTC-dag worden 90 dagen bewaard; geen IP-adressen, user-agents of Toon-ID's.</p>
+        <p><strong>Let op</strong> De weergave is informatief en vormt geen officiële waarschuwing of gezondheidsadvies.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data-attributie: <a href="https://www.uradmonitor.com/" rel="noopener">uRADMonitor® - Global Environmental Monitoring Network - www.uradmonitor.com/</a></p>
+    <p>Onafhankelijk communityproject · <a href="https://github.com/phoenix-blue/esphome-uradmonitor-geiger" rel="noopener">broncode op GitHub</a></p>
+  </footer>
+</body>
+</html>
