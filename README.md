@@ -49,8 +49,9 @@ A compact enclosure is included for this measured hardware combination. It
 keeps the Geiger board and ESP8266 inline, preserves access to the Geiger
 board's barrel-power input, and closes with a snap-fit lid.
 
-Only the final print-ready STL files are published. Editable STEP files and
-slicer-specific 3MF files are intentionally not included.
+The current compact v7 base and lid are provided as print-ready STL files. An
+optional two-colour Bambu Studio 3MF is included for a dark-blue lid with black
+logo and lettering. Editable STEP files are intentionally not included.
 
 > The PCB models in the CAD images are simplified dimensional models for
 > enclosure documentation, not manufacturing-accurate replicas.
@@ -73,7 +74,7 @@ slicer-specific 3MF files are intentionally not included.
 | `secrets.example.yaml` | Safe template for local credentials |
 | `mock/urad_mock.py` | Local uRADMonitor-compatible test endpoint |
 | `mock/compose.yaml` | Optional Docker Compose deployment |
-| `hardware/enclosure/` | Final base and lid STL files |
+| `hardware/enclosure/` | Compact v7 base/lid STL files and optional two-colour lid 3MF |
 | `docs/images/` | Reference photo and enclosure renders |
 
 ## Installation

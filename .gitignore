@@ -12,5 +12,6 @@ secrets.yaml
 **/secrets.yaml
 mock/data/
 hardware/enclosure/*.3mf
+!hardware/enclosure/cajoe_geiger_esp_v7_lid_2color_bambu.3mf
 hardware/enclosure/*.step
 hardware/enclosure/*.stp
