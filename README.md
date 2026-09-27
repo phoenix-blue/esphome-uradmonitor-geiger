@@ -63,7 +63,7 @@ This photo shows the current printed concept version. The PCBs are still
 secured with screws in this prototype. A newer enclosure revision is being
 developed with improved snap-in PCB mounting.
 
-![Printed concept enclosure](docs/images/enclosure-concept-prototype.jpg)
+<img src="docs/images/enclosure-concept-prototype.jpg" alt="Printed concept enclosure" width="650">
 
 ![Reference hardware layout](docs/images/hardware-layout.png)
 

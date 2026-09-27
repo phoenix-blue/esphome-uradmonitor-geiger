@@ -78,7 +78,7 @@ h2 { font-size: clamp(2rem, 4vw, 3.35rem); }
 .prototype { display: grid; grid-template-columns: .8fr 1.2fr; gap: 4rem; align-items: center; padding: 78px 0; border-top: 1px solid var(--line); }
 .prototype p:last-child { color: var(--muted); font-size: 1.05rem; }
 .prototype figure { margin: 0; }
-.prototype img { display: block; width: 100%; max-height: 720px; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: #071118; }
+.prototype img { display: block; width: 100%; max-width: 620px; max-height: 720px; margin: 0 auto; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: #071118; }
 .prototype figcaption { color: var(--muted); font-size: .82rem; margin-top: .6rem; }
 .transparency { margin: 25px 0 80px; padding: clamp(2rem, 5vw, 4rem); background: #091f29; border: 1px solid var(--line); }
 .transparency h2 { font-size: 2rem; }
